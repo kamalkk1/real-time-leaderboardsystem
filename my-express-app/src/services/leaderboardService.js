@@ -12,11 +12,17 @@ async function updatePlayerScore({ playerId, playerName, score, region, gameMode
   const key = getLeaderboardKey(region, gameMode);
   const playerKey = getPlayerKey(playerId);
 
+  // Strict score validation
+  const numericScore = Number(score);
+  if (isNaN(numericScore)) {
+    throw new TypeError('Invalid argument type: score must be a number');
+  }
+
   // Start a Redis transaction
   const multi = redis.multi();
   
   // Update player's score in the sorted set
-  multi.zAdd(key, [{ score: Number(score), value: playerId }]);
+  multi.zAdd(key, [{ score: numericScore, value: playerId }]);
   
   // Store player details in a hash
   multi.hSet(playerKey, {
@@ -24,7 +30,7 @@ async function updatePlayerScore({ playerId, playerName, score, region, gameMode
     lastActive: Date.now(),
     currentRegion: region,
     currentGameMode: gameMode,
-    lastScore: score
+    lastScore: numericScore
   });
 
   // Set TTL for player details (48 hours)
