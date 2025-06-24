@@ -41,29 +41,41 @@ module.exports = (io) => {
       }
     });
 
-    socket.on('leaderboard:fetch', async ({ topN = 10, region, gameMode }) => {
-      try {
-        // Leave previous room if any
-        if (currentRoom) {
-          socket.leave(currentRoom);
-        }
+socket.on('leaderboard:fetch', async ({ topN = 10, region, gameMode }) => {
+  try {
+    // Validate required fields
+    if (!region || !gameMode) {
+      return socket.emit('error', 'Region and gameMode are required');
+    }
 
-        // Join new room
-        currentRoom = `${region}:${gameMode}`;
-        socket.join(currentRoom);
+    const newRoom = `${region}:${gameMode}`;
 
-        const topPlayers = await leaderboardService.getTopPlayers({ 
-          topN, 
-          region, 
-          gameMode 
-        });
-        
-        socket.emit('leaderboard:update', topPlayers);
-      } catch (error) {
-        console.error('❌ Socket leaderboard:fetch failed:', error);
-        socket.emit('error', 'Leaderboard fetch failed');
-      }
+    // Leave previous room if switching
+    if (currentRoom && currentRoom !== newRoom) {
+      socket.leave(currentRoom);
+      console.log(`👋 Left room: ${currentRoom}`);
+    }
+
+    // Join new room
+    currentRoom = newRoom;
+    socket.join(currentRoom);
+    console.log(`🚪 Joined room: ${currentRoom}`);
+
+    // Fetch top players
+    const topPlayers = await leaderboardService.getTopPlayers({
+      topN,
+      region,
+      gameMode
     });
+
+    // Emit only to this socket (not broadcast)
+    socket.emit('leaderboard:update', topPlayers);
+    console.log(`📤 Sent leaderboard:update to ${currentRoom}`, topPlayers);
+  } catch (error) {
+    console.error('❌ Socket leaderboard:fetch failed:', error);
+    socket.emit('error', 'Leaderboard fetch failed');
+  }
+});
 
     socket.on('player:stats', async ({ playerId, region, gameMode }) => {
       try {
