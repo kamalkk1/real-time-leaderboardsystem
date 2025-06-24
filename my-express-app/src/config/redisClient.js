@@ -1,12 +1,24 @@
 const { createClient } = require('redis');
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-const redisClient = createClient({ url: redisUrl });
+if (!process.env.REDIS_URL) {
+  throw new Error('❌ REDIS_URL is not set. Make sure Redis plugin is connected in Railway.');
+}
 
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
+const redisClient = createClient({
+  url: process.env.REDIS_URL
+});
+
+redisClient.on('error', (err) => {
+  console.error('❌ Redis Client Error', err);
+});
 
 (async () => {
-  await redisClient.connect();
+  try {
+    await redisClient.connect();
+    console.log('✅ Connected to Redis');
+  } catch (e) {
+    console.error('❌ Failed to connect to Redis:', e);
+  }
 })();
 
 module.exports = redisClient;

@@ -20,7 +20,7 @@ async function updatePlayerScore({ playerId, score, region, gameMode }) {
 
 async function getTopPlayers({ topN, region, gameMode }) {
   const key = getLeaderboardKey(region, gameMode);
-  const players = await redis.zRevRangeWithScores(key, 0, topN - 1);
+const players = await redis.zRevRangeWithScores(key, 0, topN - 1);
   return players;
 }
 
