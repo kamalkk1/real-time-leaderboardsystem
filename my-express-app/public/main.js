@@ -1,4 +1,7 @@
-const socket = io();
+const socket = io("https://real-time-leaderboardsystem-production.up.railway.app", {
+  transports: ['websocket']
+});
+
 
 const form = document.getElementById("scoreForm");
 const leaderboardBody = document.getElementById("leaderboardBody");

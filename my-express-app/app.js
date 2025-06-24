@@ -11,7 +11,7 @@ const cron = require('node-cron');
 const app = express();
 const server = http.createServer(app);
 const allowedOrigins = [
-  'https://your-netlify-site.netlify.app', 
+  'https://astounding-cucurucho-005e54.netlify.app', 
   'http://localhost:3000', 
 ];
 app.use(cors({ origin: allowedOrigins, credentials: true }));
