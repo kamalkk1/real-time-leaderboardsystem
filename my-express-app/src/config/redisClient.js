@@ -1,24 +1,25 @@
+require('dotenv').config();
 const { createClient } = require('redis');
 
-if (!process.env.REDIS_URL) {
-  throw new Error('❌ REDIS_URL is not set. Make sure Redis plugin is connected in Railway.');
+const env = process.env.ENV || 'production';
+const redisUrl = process.env.REDIS_URL;
+
+if (!redisUrl) {
+  throw new Error('❌ REDIS_URL not set!');
 }
 
-const redisClient = createClient({
-  url: process.env.REDIS_URL
-});
-console.log('🔍 REDIS_URL =', process.env.REDIS_URL);
+console.log(`🔌 Connecting to Redis [${env}]: ${redisUrl}`);
 
-redisClient.on('error', (err) => {
-  console.error('❌ Redis Client Error', err);
-});
+const redisClient = createClient({ url: redisUrl });
+
+redisClient.on('error', (err) => console.error('Redis Client Error', err));
 
 (async () => {
   try {
     await redisClient.connect();
-    console.log('✅ Connected to Redis');
+    console.log('✅ Redis connected');
   } catch (e) {
-    console.error('❌ Failed to connect to Redis:', e);
+    console.error('❌ Redis connection failed:', e);
   }
 })();
 
