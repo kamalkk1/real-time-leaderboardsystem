@@ -8,6 +8,10 @@ exports.scoreUpdate = async (req, res) => {
 
 exports.fetchLeaderboard = async (req, res) => {
   const { topN, region, gameMode } = req.query;
-  const players = await leaderboardService.getTopPlayers({ topN, region, gameMode });
+const players = await leaderboardService.getTopPlayers({
+  topN: Number(topN),
+  region,
+  gameMode
+});
   res.json(players);
 };

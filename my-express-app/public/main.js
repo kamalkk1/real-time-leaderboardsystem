@@ -11,24 +11,28 @@ form.addEventListener('submit', (e) => {
   const playerId = form.playerId.value;
   const region = form.region.value;
   const gameMode = form.gameMode.value;
-  const score = form.score.value;
+  // Ensure score is a number
+  const score = Number(form.score.value);
 
   currentRegion = region;
   currentGameMode = gameMode;
-
+  console.log({ playerId, region, gameMode, score });
+  
   socket.emit('player:scoreUpdate', { playerId, score, region, gameMode });
   socket.emit('leaderboard:fetch', { topN: 10, region, gameMode });
 });
 
 socket.on('leaderboard:update', (players) => {
   leaderboardBody.innerHTML = '';
-  players.forEach((p, idx) => {
-    leaderboardBody.innerHTML += `<tr>
-      <td>${idx + 1}</td>
-      <td>${p.value}</td>
-      <td>${p.score}</td>
-    </tr>`;
-  });
+  if (Array.isArray(players)) {
+    players.forEach((p, idx) => {
+      leaderboardBody.innerHTML += `<tr>
+        <td>${idx + 1}</td>
+        <td>${p.value}</td>
+        <td>${p.score}</td>
+      </tr>`;
+    });
+  }
 });
 
 // Initial fetch
